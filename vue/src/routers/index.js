@@ -9,6 +9,7 @@ import Dashboard from "./../views/Dashboard.vue";
 import Register from "./../views/Register.vue";
 import Login from "./../views/Login.vue";
 import Survey from "./../views/Survey.vue";
+import SurveyView from "./../views/SurveyView.vue";
 
 const routes = [
   {
@@ -19,6 +20,8 @@ const routes = [
     children: [
       { path: "/dashboard", name: "Dashboard", component: Dashboard },
       { path: "/survey", name: "Survey", component: Survey },
+      { path: "/survey/create", name: "SurveyCreate", component: SurveyView },
+      { path: "/survey/:id", name: "SurveyView", component: SurveyView },
     ],
   },
   {
