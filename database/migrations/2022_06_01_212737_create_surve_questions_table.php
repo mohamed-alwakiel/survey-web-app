@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('surve_questions', function (Blueprint $table) {
+        Schema::create('survey_questions', function (Blueprint $table) {
             $table->id();
             $table->string('type', 50);
             $table->string('question', 2000);

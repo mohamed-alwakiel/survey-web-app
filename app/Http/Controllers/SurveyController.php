@@ -7,10 +7,16 @@ use App\Http\Requests\UpdateSurveyRequest;
 use App\Http\Resources\SurveyResource;
 
 use App\Models\Survey;
+use App\Models\SurveyQuestion;
 
+use App\Enums\QuestionType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+
+use BenSampo\Enum\Rules\EnumValue;
+use Illuminate\Support\Arr;
 
 class SurveyController extends Controller
 {
@@ -42,6 +48,13 @@ class SurveyController extends Controller
         endif;
 
         $survey = Survey::create($data);
+
+        // create new questions
+        foreach ($data['questions'] as $question) :
+            $question['survey_id'] = $survey->id;
+            $this->createQuestion($question);
+        endforeach;
+
         return new SurveyResource($survey);
     }
 
@@ -85,6 +98,36 @@ class SurveyController extends Controller
         endif;
 
         $survey->update($data);
+
+        // Get ids as plain array of existing questions
+        $existingIDs = $survey->questions()->pluck('id')->toArray();
+        // Get ids as plain array of new questions
+        $newIDs = Arr::pluck($data['questions'], 'id');
+
+        // Find questions to delete
+        $toDelete = array_diff($existingIDs, $newIDs);
+        //Find questions to add
+        $toAdd = array_diff($newIDs, $existingIDs);
+
+        // Delete questions by $toDelete array
+        SurveyQuestion::destroy($toDelete);
+
+        // Create new questions
+        foreach ($data['questions'] as $question) :
+            if (in_array($question['id'], $toAdd)) :
+                $question['survey_id'] = $survey->id;
+                $this->createQuestion($question);
+            endif;
+        endforeach;
+
+        // Update existing questions
+        $questionMap = collect($data['questions'])->keyBy('id');
+        foreach ($survey->questions as $question) :
+            if (isset($questionMap[$question->id])) :
+                $this->updateQuestion($question, $questionMap[$question->id]);
+            endif;
+        endforeach;
+
         return new SurveyResource($survey);
     }
 
@@ -113,6 +156,12 @@ class SurveyController extends Controller
     }
 
 
+    /**
+     * Save image in local file system and return saved image path
+     *
+     * @param $image
+     * @throws \Exception
+     */
     private function saveImage($image)
     {
 
@@ -153,5 +202,55 @@ class SurveyController extends Controller
         file_put_contents($relativePath, $image);
 
         return $relativePath;
+    }
+
+
+    /**
+     * Create a question and return
+     *
+     * @param $data
+     * @return mixed
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    private function createQuestion($question)
+    {
+        if (is_array($question['data'])) :
+            $question['data'] = json_encode($question['data']);
+        endif;
+
+        $data = Validator::make($question, [
+            'question' => 'required|string',
+            'type' => [new EnumValue(QuestionType::class)],
+            'description' => 'nullable|string',
+            'data' => 'present',
+            'survey_id' => 'exists:App\Models\Survey,id'
+        ]);
+
+        return SurveyQuestion::create($data->validated());
+    }
+
+    /**
+     * Update a question and return true or false
+     *
+     * @param \App\Models\SurveyQuestion $surveyQuestion
+     * @param                            $question
+     * @return bool
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    private function updateQuestion(SurveyQuestion $surveyQuestion, $question)
+    {
+        if (is_array($question['data'])) :
+            $question['data'] = json_encode($question['data']);
+        endif;
+
+        $data = Validator::make($question, [
+            'id' => 'exists:App\Models\SurveyQuestion,id',
+            'question' => 'required|string',
+            'type' => [new EnumValue(QuestionType::class)],
+            'description' => 'nullable|string',
+            'data' => 'present',
+        ]);
+
+        return $surveyQuestion->update($data->validated());
     }
 }

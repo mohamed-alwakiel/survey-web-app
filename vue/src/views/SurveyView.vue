@@ -238,8 +238,10 @@ const surveyLoading = computed(() => store.state.currentSurvey.loading);
 //create empty survey
 let model = ref({
     title: "",
+    slug: "",
     status: false,
     description: null,
+    image: null,
     image_url: null,
     expire_date: null,
     questions: [],
@@ -276,13 +278,12 @@ function onImageChoose(event) {
 
 function addQuestion(index) {
     const newQuestion = {
-        id: uuidv4,
+        id: uuidv4(),
         type: "text",
         question: "",
         description: null,
         data: {},
     };
-
     model.value.questions.splice(index, 0, newQuestion);
 }
 
@@ -293,6 +294,10 @@ function deleteQuestion(question) {
 }
 
 function questionChange(question) {
+    // if (question.data.options) {
+    //     question.data.options = [...question.data.options];
+    // }
+
     model.value.questions = model.value.questions.map((item) => {
         if (item.id === question.id) {
             return JSON.parse(JSON.stringify(question));

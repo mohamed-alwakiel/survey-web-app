@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('surve_answers', function (Blueprint $table) {
+        Schema::create('survey_answers', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Survey::class, 'survey_id');
             $table->timestamp('start_date')->nullable();

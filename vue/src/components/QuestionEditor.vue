@@ -193,8 +193,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed } from "@vue/reactivity";
 import { v4 as uuidv4 } from "uuid";
+
 import store from "./../store";
 
 const props = defineProps({
@@ -241,6 +242,7 @@ function addOption() {
 
 function removeOption(option) {
     setOpttions(getOptions().filter((item) => item !== option));
+    dataChange();
 }
 
 function typeChange() {
@@ -251,13 +253,13 @@ function typeChange() {
     dataChange();
 }
 
+// Emit the data change
 function dataChange() {
     const data = JSON.parse(JSON.stringify(model.value));
-
+    // const data = model.value;
     if (!shouldHaveOptions()) {
         delete data.data.options;
     }
-
     emit("change", data);
 }
 </script>
