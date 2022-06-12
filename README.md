@@ -22,6 +22,14 @@ You need to have PHP version **8.0** or above. Node.js version **12.0** or above
 ## Demo
 
 
+https://user-images.githubusercontent.com/48841023/173252282-40b9d08c-5b0c-450c-a222-b44673f24f30.mp4
+
+
+## About project
+-   you can create your own survey with questions in diffrent types like (text, select, radio, check or textarea) and 
+    and take the survey linke to share it to give answers for this survey 
+-   [Note] the project not completed yet, it still need more features :)
+
 ## Installation
 
 #### Backend
