@@ -10,6 +10,7 @@ import Register from "./../views/Register.vue";
 import Login from "./../views/Login.vue";
 import Survey from "./../views/Survey.vue";
 import SurveyView from "./../views/SurveyView.vue";
+import SurveyPublicView from "./../views/SurveyPublicView.vue";
 
 const routes = [
   {
@@ -23,6 +24,11 @@ const routes = [
       { path: "/survey/create", name: "SurveyCreate", component: SurveyView },
       { path: "/survey/:id", name: "SurveyView", component: SurveyView },
     ],
+  },
+  {
+    path: "/view/survey/:slug",
+    name: "SurveyPublicView",
+    component: SurveyPublicView,
   },
   {
     path: "/auth",

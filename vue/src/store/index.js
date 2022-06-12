@@ -13,19 +13,26 @@ const store = createStore({
     },
     surveys: {
       loading: false,
+      links: [],
       data: [],
     },
     questionTypes: ["text", "select", "radio", "checkbox", "textarea"],
+    notification: {
+      show: false,
+      type: null,
+      message: null,
+    },
   },
 
   getters: {},
 
   actions: {
     // get all surveys
-    getSurveys({ commit }) {
+    getSurveys({ commit }, { url = null } = {}) {
+      url = url || "/survey";
       commit("setSurveysLoading", true);
       return axiosClient
-        .get("/survey")
+        .get(url)
         .then((response) => {
           commit("setSurveysLoading", false);
           commit("setSurveys", response.data);
@@ -37,10 +44,27 @@ const store = createStore({
         });
     },
 
+    // get specific survey
     getSurvey({ commit }, id) {
       commit("setCurrentSurveyLoading", true);
       return axiosClient
         .get(`/survey/${id}`)
+        .then((response) => {
+          commit("setCurrentSurvey", response.data);
+          commit("setCurrentSurveyLoading", false);
+          return response;
+        })
+        .catch((error) => {
+          commit("setCurrentSurveyLoading", false);
+          throw error;
+        });
+    },
+
+    // get survey by slug
+    getSurveyBySlug({ commit }, slug) {
+      commit("setCurrentSurveyLoading", true);
+      return axiosClient
+        .get(`/survey-by-slug/${slug}`)
         .then((response) => {
           commit("setCurrentSurvey", response.data);
           commit("setCurrentSurveyLoading", false);
@@ -70,6 +94,11 @@ const store = createStore({
         });
       }
       return response;
+    },
+
+    // save survey answers
+    saveSurveyAnswer({ commit }, { surveyId, answers }) {
+      return axiosClient.post(`/survey/${surveyId}/answer`, { answers });
     },
 
     deleteSurvey: ({}, id) => {
@@ -123,6 +152,7 @@ const store = createStore({
     },
 
     setSurveys: (state, surveys) => {
+      state.surveys.links = surveys.meta.links;
       state.surveys.data = surveys.data;
     },
 
@@ -147,6 +177,15 @@ const store = createStore({
     setToken: (state, token) => {
       state.user.token = token;
       sessionStorage.setItem("TOKEN", token);
+    },
+
+    notify: (state, { message, type }) => {
+      state.notification.show = true;
+      state.notification.type = type;
+      state.notification.message = message;
+      setTimeout(() => {
+        state.notification.show = false;
+      }, 3000);
     },
   },
 

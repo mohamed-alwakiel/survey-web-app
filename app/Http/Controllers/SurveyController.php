@@ -10,6 +10,9 @@ use App\Models\Survey;
 use App\Models\SurveyQuestion;
 
 use App\Enums\QuestionType;
+use App\Http\Requests\StoreSurveyAnswerRequest;
+use App\Models\SurveyAnswer;
+use App\Models\SurveyQuestionAnswer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
@@ -28,7 +31,7 @@ class SurveyController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        return SurveyResource::collection(Survey::where('user_id', $user->id)->paginate());
+        return SurveyResource::collection(Survey::where('user_id', $user->id)->paginate(5));
     }
 
     /**
@@ -58,6 +61,7 @@ class SurveyController extends Controller
         return new SurveyResource($survey);
     }
 
+
     /**
      * Display the specified resource.
      *
@@ -73,6 +77,19 @@ class SurveyController extends Controller
 
         return new SurveyResource($survey);
     }
+
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Survey  $survey
+     * @return \Illuminate\Http\Response
+     */
+    public function showForGuest(Survey $survey)
+    {
+        return new SurveyResource($survey);
+    }
+
 
     /**
      * Update the specified resource in storage.
@@ -252,5 +269,42 @@ class SurveyController extends Controller
         ]);
 
         return $surveyQuestion->update($data->validated());
+    }
+
+
+    /**
+     * Store a survey answers.
+     *
+     * @param  \App\Http\Requests\StoreSurveyAnswerRequest  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function storeAnswer(StoreSurveyAnswerRequest $request, Survey $survey)
+    {
+        $data = $request->validated();
+
+        $surveyAnswer = SurveyAnswer::create([
+            'survey_id' => $survey->id,
+            'start_date' => date('Y-m-d H:i:s'),
+            'end_date' => date('Y-m-d H:i:s'),
+        ]);
+
+        foreach ($data['answers'] as $questionId => $answer) :
+            $question = SurveyQuestion::where(['id' => $questionId, 'survey_id' => $survey->id])->get();
+
+            if (!$question) :
+                return response('Invalid question ID :' . $questionId, 400);
+            endif;
+
+            $answers = [
+                'survey_question_id' => $questionId,
+                'survey_answer_id' => $surveyAnswer->id,
+                'answer' => is_array($answer) ? json_encode($answer) : $answer,
+            ];
+
+            $questionsAnswer = SurveyQuestionAnswer::create($answers);
+
+        endforeach;
+
+        return response("", 201);
     }
 }
