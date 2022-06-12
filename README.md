@@ -1,6 +1,6 @@
 # Survey Full Stack Application
 
-Built with these technologies for [YouTube Video](https://youtu.be/WLQDpY7lOLg)
+Built with these technologies
 <table>
     <tr>
         <td>
@@ -11,9 +11,6 @@ Built with these technologies for [YouTube Video](https://youtu.be/WLQDpY7lOLg)
         </td>
         <td>
             <a href="https://tailwindcss.com/"><img src="https://i.imgur.com/wdYXsgR.png" /></a>
-        </td>
-        <td>
-            <img src="https://i.imgur.com/Kp5kTUp.png" />
         </td>
     </tr>
 </table> 
