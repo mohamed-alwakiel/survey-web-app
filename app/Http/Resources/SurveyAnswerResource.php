@@ -17,7 +17,9 @@ class SurveyAnswerResource extends JsonResource
         return [
             'id' => $this->id,
             'survey' => new SurveyResource($this->survey),
-            'end_date' => $this->end_date
+            'end_date' => $this->end_date,
+            'end_date' => (new \DateTime($this->end_date))->format('Y-m-d H:i:s'),
+
         ];
     }
 }

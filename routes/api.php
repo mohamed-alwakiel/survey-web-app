@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SurveyController;
 
 /*
@@ -25,6 +26,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // survey routes
     Route::resource('survey', SurveyController::class);
+
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 });
 
 // show survey details
